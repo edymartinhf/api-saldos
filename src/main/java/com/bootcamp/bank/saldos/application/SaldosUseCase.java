@@ -1,6 +1,7 @@
 package com.bootcamp.bank.saldos.application;
 
 import com.bootcamp.bank.saldos.infrastructure.client.*;
+import com.bootcamp.bank.saldos.infrastructure.exception.BusinessException;
 import com.bootcamp.bank.saldos.infrastructure.rest.SaldosResource;
 import com.bootcamp.bank.saldos.infrastructure.rest.dto.SaldoResponse;
 import com.bootcamp.bank.saldos.infrastructure.rest.dto.Totales;
@@ -38,7 +39,9 @@ public class SaldosUseCase {
     public Mono<SaldoResponse> getSaldos(String id){
 
 
-        return clientApiClientes.getClientes(id).map(c-> {
+        return clientApiClientes.getClientes(id)
+        .switchIfEmpty(Mono.error(()->new BusinessException("No existe cliente con el id "+id)))
+        .map(c-> {
             SaldoResponse saldo = new SaldoResponse();
             saldo.setIdCliente(id);
             saldo.setCliente(c);
